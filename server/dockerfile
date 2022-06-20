@@ -1,0 +1,28 @@
+FROM node
+
+# Set working directory
+RUN mkdir -p /var/www/nest-tinder
+WORKDIR /var/www/nest-tinder
+
+# add `/usr/src/app/node_modules/.bin` to $PATH
+ENV PATH /var/www/nest-tinder/node_modules/.bin:$PATH
+# create user with no password
+RUN adduser --disabled-password tinder
+
+# Copy existing application directory contents
+COPY . /var/www/nest-tinder
+# install and cache app dependencies
+COPY package.json /var/www/nest-tinder/package.json
+COPY package-lock.json /var/www/nest-tinder/package-lock.json
+
+# grant a permission to the application
+RUN chown -R tinder:tinder /var/www/nest-tinder
+USER tinder
+
+# clear application caching
+RUN npm cache clean --force
+# install all dependencies
+RUN npm install
+
+EXPOSE 4000
+CMD [ "npm", "run", "start:dev" ]

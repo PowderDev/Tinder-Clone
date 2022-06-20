@@ -1,0 +1,77 @@
+version: "3.7"
+# all the containers have to declare inside services
+services:
+  # App service
+  tinder_clone:
+    # application rely on redis running
+    depends_on:
+      - redis
+      - postgres
+    # this build context will take the commands from Dockerfile
+    build:
+      context: .
+      dockerfile: Dockerfile
+    # image name
+    image: nest-tinder-docker
+    # container name
+    container_name: tinder_clone
+    # always restart the container if it stops.
+    restart: always
+    # docker run -t is allow
+    tty: true
+    # application port, this is take value from env file
+    ports:
+      - "${SERVER_PORT}:${SERVER_PORT}"
+    # working directory
+    working_dir: /var/www/nest-tinder
+    # application environment
+    environment:
+      SERVICE_NAME: nestchat
+      SERVICE_TAGS: dev
+      REDIS_PORT: ${REDIS_PORT}
+      REDIS_HOST: ${REDIS_HOST}
+    # save (persist) data and also to share data between containers
+    volumes:
+      - ./:/var/www/nest-tinder
+      - /var/www/nest-tinder/node_modules
+      # application network, each container for a service joins this network
+    networks:
+      - nest-tinder-network
+  # Redis service
+  redis:
+    # image name
+    image: redis:latest
+    # container name
+    container_name: redis
+    # execute the command once start redis container
+    command: ["redis-server", "--bind", "redis", "--port", "6379"]
+    # save (persist) data and also to share data between containers
+    volumes:
+      - red_data:/var/lib/redis
+    # redis port, this is take value from env file
+    ports:
+      - "${REDIS_PORT}:${REDIS_PORT}"
+      # application network, each container for a service joins this network
+    networks:
+      - nest-tinder-network
+
+  postgres:
+    container_name: postgres
+    image: postgres:latest
+    ports:
+      - "5433:5433"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: Tinder_Clone
+    expose:
+      - 5433
+
+  #Docker Networks
+networks:
+  # All container connect in a network
+  nest-tinder-network:
+    driver: bridge
+# save (persist) data
+volumes:
+  red_data: {}

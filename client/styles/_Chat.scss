@@ -1,0 +1,17 @@
+.chat {
+  @apply flex flex-col mt-5 px-4 overflow-y-auto relative;
+
+  &::-webkit-scrollbar {
+    width: 7px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: rgb(187, 187, 187);
+    border-radius: 5px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgb(39, 32, 41);
+    border-radius: 5px;
+  }
+}
